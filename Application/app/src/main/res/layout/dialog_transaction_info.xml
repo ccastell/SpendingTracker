@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/dialog_padding">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text|textAutoComplete"
+        android:ems="10"
+        android:id="@+id/item_name"
+        android:layout_weight="1"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:hint="Item Name"
+        android:textSize="@dimen/dialog_text_size" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text|textAutoComplete"
+        android:ems="10"
+        android:id="@+id/store_name"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/item_name"
+        android:layout_weight="1"
+        android:hint="Store"
+        android:textSize="@dimen/dialog_text_size"/>
+
+
+    <LinearLayout
+        android:id="@+id/price_group"
+        android:layout_below="@+id/store_name"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true">
+
+        <EditText
+            android:background="@android:color/transparent"
+            android:layout_width="180dp"
+            android:layout_height="match_parent"
+            android:inputType="textPersonName"
+            android:text="Price:"
+            android:editable="false"
+            android:ems="10"
+            android:layout_below="@+id/item_name"
+            android:layout_alignParentStart="true"
+            android:id="@+id/editText1"
+            android:layout_alignBottom="@+id/item_price"
+            android:textSize="@dimen/dialog_input_size"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:layout_below="@+id/item_name"
+            android:layout_toEndOf="@+id/editText1"
+            android:id="@+id/item_price"
+            android:hint="0.00"
+            android:textAlignment="viewEnd"
+            android:textSize="@dimen/dialog_input_size"
+            android:inputType="numberDecimal" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/quantity_group"
+        android:layout_below="@+id/price_group"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true">
+
+        <EditText
+            android:background="@android:color/transparent"
+            android:layout_width="180dp"
+            android:layout_height="match_parent"
+            android:inputType="textPersonName"
+            android:editable="false"
+            android:text="Quantity:"
+            android:ems="10"
+            android:id="@+id/editText2"
+            android:textSize="@dimen/dialog_input_size"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:id="@+id/item_quantity"
+            android:hint="0"
+            android:textAlignment="viewEnd"
+            android:textSize="@dimen/dialog_input_size"
+            android:inputType="number" />
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>
