@@ -3,6 +3,7 @@ package com.example.spendingtracker2.Models;
 import android.location.Location;
 
 import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by carlcastello on 16/03/17.
@@ -10,8 +11,10 @@ import java.util.Calendar;
 
 public class Store {
 
+    private int id;
     private String name;       // Name of the store
     private Location location;
+    static AtomicInteger nextID = new AtomicInteger();
 
     /**
      * Class variable initializer
@@ -21,6 +24,7 @@ public class Store {
     public Store(String name, Location location) {
         this.name = name;
         this.location = location;
+        this.id = nextID.incrementAndGet();
     }
 
     /**
@@ -41,4 +45,12 @@ public class Store {
         return location;
     }
 
+    /**
+     * Get id Function
+     * Returns the store ID
+     * @return int
+     */
+    public int getId() {
+        return this.id;
+    }
 }

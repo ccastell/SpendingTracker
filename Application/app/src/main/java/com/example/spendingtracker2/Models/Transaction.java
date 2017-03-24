@@ -1,6 +1,7 @@
 package com.example.spendingtracker2.Models;
 
 import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A class of spending.
@@ -10,9 +11,11 @@ import java.util.Calendar;
 
 public class Transaction {
 
+    private int id;                 // Transaction ID
     private Calendar calendar;      // Date
     private Item item;        // Item
     private Store store;        // Location where the item is bought --later could be GeoPoints
+    static AtomicInteger nextID = new AtomicInteger();
 
     /**
      * A class constructor that initialize variables important to the class
@@ -24,6 +27,7 @@ public class Transaction {
         this.store = store;
         this.item = item;
         this.calendar = calendar;
+        this.id = nextID.incrementAndGet();
     }
 
     /**
@@ -32,7 +36,7 @@ public class Transaction {
      * @return Calendar
      */
     public Calendar getCalendar() {
-        return calendar;
+        return this.calendar;
     }
 
     /**
@@ -41,7 +45,7 @@ public class Transaction {
      * @return String
      */
     public Item getItem() {
-        return item;
+        return this.item;
     }
 
     /**
@@ -49,10 +53,17 @@ public class Transaction {
      * Returns the Location where the item is purchase.
      * @return Store
      */
-    public Store getLocation() {
-        return store;
+    public Store getStore() {
+        return this.store;
     }
 
-
+    /**
+     * getId function
+     * Reutnrs the id of the transaction
+     * @return int
+     */
+    public int getId() {
+        return this.id;
+    }
 }
 

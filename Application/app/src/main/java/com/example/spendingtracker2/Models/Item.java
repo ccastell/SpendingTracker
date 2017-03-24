@@ -1,5 +1,7 @@
 package com.example.spendingtracker2.Models;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Item Class
  * A description on the Items that are purchased during a transaction
@@ -7,9 +9,12 @@ package com.example.spendingtracker2.Models;
  */
 
 public class Item {
+
+    private int id;
     private String name;         // Item Name
     private Double price;         // Price of the item
     private int quantity;        // Quantity
+    static AtomicInteger nextID = new AtomicInteger();
 
     /**
      * Class Initializer
@@ -21,6 +26,7 @@ public class Item {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
+        this.id = nextID.incrementAndGet();
     }
 
     /**
@@ -29,7 +35,7 @@ public class Item {
      * @return String
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
@@ -38,7 +44,7 @@ public class Item {
      * @return Double
      */
     public Double getPrice() {
-        return price;
+        return this.price;
     }
 
     /**
@@ -47,6 +53,15 @@ public class Item {
      * @return Int
      */
     public int getQuantity() {
-        return quantity;
+        return this.quantity;
+    }
+
+    /**
+     * Get id Function
+     * Returns the store ID
+     * @return int
+     */
+    public int getId() {
+        return this.id;
     }
 }

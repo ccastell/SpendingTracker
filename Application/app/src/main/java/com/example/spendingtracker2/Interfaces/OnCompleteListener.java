@@ -6,5 +6,5 @@ package com.example.spendingtracker2.Interfaces;
  */
 
 public interface OnCompleteListener {
-    public abstract void onComplete(String item_name, String store_name, Double cost, int quantity);
+    public abstract void onComplete(String itemName, String storeName, Double cost, int quantity);
 }

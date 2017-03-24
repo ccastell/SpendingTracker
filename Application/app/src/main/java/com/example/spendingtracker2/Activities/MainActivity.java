@@ -2,53 +2,44 @@ package com.example.spendingtracker2.Activities;
 
 import android.Manifest;
 import android.app.DialogFragment;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 
-import com.example.spendingtracker2.Controllers.ItemListController;
-import com.example.spendingtracker2.Controllers.StoreListController;
-import com.example.spendingtracker2.Controllers.TransactionListController;
+import com.example.spendingtracker2.Controllers.TransactionController;
+import com.example.spendingtracker2.Fragments.TransactionDialogFragment;
 import com.example.spendingtracker2.Interfaces.OnCompleteListener;
 import com.example.spendingtracker2.Models.Item;
 import com.example.spendingtracker2.Models.Store;
-import com.example.spendingtracker2.Models.StoreList;
 import com.example.spendingtracker2.Models.Transaction;
 import com.example.spendingtracker2.R;
-import com.example.spendingtracker2.Fragments.TransactionDialogFragment;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Calendar;
 
-/**
- * @author carlcastello
- * http://www.mobiledev.tips/2015/11/09/android-gps-locations/
- */
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener ,
+        OnCompleteListener {
 
-public class MainActivity extends AppCompatActivity implements OnCompleteListener {
-    private static final String FILENAME = "file.sav";
 
-    private TransactionListController transactionListController;
-    private StoreListController storeListController;
-    private ItemListController itemListController;
-
-    private ArrayList<Transaction> jsonTransactionList;
-    private ArrayList<Store> jsonStoreList;
-    private ArrayList<Item> jsonItemList;
+    private LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,13 +48,65 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     }
 
     @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_all) {
+            // Handle the camera action
+        } else if (id == R.id.nav_scheduled) {
+
+        } else if (id == R.id.nav_settings) {
+
+        } else if (id == R.id.nav_recent) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+
+    @Override
     protected void onStart() {
         super.onStart();
-        loadFromFile();
     }
 
     @Override
     protected void onResume() {
+        super.onResume();
+        setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         final Button button = (Button) findViewById(R.id.transaction_dialog_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -72,67 +115,64 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                 newFragment.show(getFragmentManager(), "dialog");
             }
         });
-    }
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
 
-    public void onComplete(String itemName, String storeName, Double price, int quantity) {
-        Location location;
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
 
-        Calendar calendar = Calendar.getInstance();
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        // Check Permission of location Use
-        if (checkPermission()) {
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        } else {
-            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        }
-
-        Item item = new Item(itemName,price,quantity);
-        Store store = new Store(storeName,location);
-        Transaction transaction = new Transaction(item,store,calendar);
-    }
-
-
-    private boolean checkPermission(){
-        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        if (result == PackageManager.PERMISSION_GRANTED){
-            return true;
-        } else {
-            return false;
-        }
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     /**
-     * Load the file from json
+     * A function responsible for processing the user input
+     * from the Dialog Box
+     * @param itemName
+     * @param storeName
+     * @param price
+     * @param quantity
      */
-    private void loadFromFile() {
-        try {
-            FileInputStream fis = openFileInput(FILENAME);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+    @Override
+    public void onComplete(String itemName, String storeName, Double price, int quantity) {
+//        Location location;
+//
+//        Calendar calendar = Calendar.getInstance();
+//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-            Gson gson = new Gson();
+//
+//        // getting GPS status
+//        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+//
+//        // getting network status
+//        isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+//
 
-            // Code from http://stackoverflow.com/questions/12384064/gson-convert-from-json-to-a-typed-arraylistt
-            Type listType = new TypeToken<ArrayList<Transaction>>(){}.getType();
-            Type listType2 = new TypeToken<ArrayList<Store>>(){}.getType();
-            Type listType3 = new TypeToken<ArrayList<Item>>(){}.getType();
-
-            this.jsonTransactionList = gson.fromJson(in,listType);
-            this.jsonStoreList = gson.fromJson(in,listType2);
-            this.jsonItemList = gson.fromJson(in,listType3);
-
-            this.transactionListController = new TransactionListController(this.jsonTransactionList);
-            this.storeListController = new StoreListController(this.jsonStoreList);
-            this.itemListController = new ItemListController(this.jsonItemList);
-            //System.out.println(this.jsonList.size());
-
-        } catch (FileNotFoundException e) {
-			/* Create a brand new tweet list if we can't find the file. */
-            this.transactionListController = new TransactionListController();
-            this.storeListController = new StoreListController();
-            this.itemListController = new ItemListController();
-        }
+//        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//
+//        if (location != null) {
+//            location.getLongitude();
+//            System.out.println(location.getLatitude());
+//        } else {
+//            Item item = new Item(itemName, price, quantity);
+//            System.out.println("location is NULL -------");
+//            Store store = new Store(storeName, location);
+//            Transaction transaction = new Transaction(item, store, calendar);
+//            new TransactionController(this, transaction).save();
+//        }
+//    }
     }
+
+
 
 }

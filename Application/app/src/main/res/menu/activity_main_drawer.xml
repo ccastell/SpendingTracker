@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_all"
+            android:title="All Transaction" />
+        <item
+            android:id="@+id/nav_scheduled"
+            android:title="Scheduled Transaction" />
+        <item
+            android:id="@+id/nav_settings"
+            android:title="Settings" />
+    </group>
+
+    <item android:title="Recent">
+        <menu>
+            <item
+                android:id="@+id/nav_recent"
+                android:title="ItemName"/>
+            <item
+                android:id="@+id/nav_send"
+                android:title="ItemName" />
+        </menu>
+    </item>
+
+</menu>
