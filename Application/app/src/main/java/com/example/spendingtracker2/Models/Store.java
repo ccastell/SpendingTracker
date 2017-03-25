@@ -28,6 +28,18 @@ public class Store {
     }
 
     /**
+     * Add Store read from Json File
+     * @param storeID
+     * @param name
+     * @param location
+     */
+    public Store(int id, String name, Location location) {
+        this.name = name;
+        this.location = location;
+        this.id = id;
+    }
+
+    /**
      * Get store name function
      * Returns the store name
      * @return String

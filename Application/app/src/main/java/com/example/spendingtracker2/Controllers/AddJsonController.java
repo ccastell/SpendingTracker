@@ -30,12 +30,17 @@ import java.io.OutputStreamWriter;
  * Controller for Adding transaction to Json
  */
 public class AddJsonController {
-    public  static class AddTransactionTask extends AsyncTask<Transaction, Void, Void> {
+    public  static class AddTransactionTask extends AsyncTask<Transaction, Void, JSONObject> {
         final String FILENAME = "/data.sav";
         private Context ContextAsync;
 
         public AddTransactionTask(Context context){
             this.ContextAsync = context;
+        }
+
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
         }
 
         /**
@@ -44,54 +49,56 @@ public class AddJsonController {
          * @return Null
          */
         @Override
-        protected Void doInBackground(Transaction... transactions) {
+        protected JSONObject doInBackground(Transaction... transactions) {
 
+            Transaction transaction = transactions[0];
             TransactionController tc;
             StoreController st;
             ItemController it;
 
+            JSONObject transactionJson = null;
 
-            for (Transaction transaction : transactions) {
-                tc = new TransactionController(transaction);
-                st = new StoreController(transaction.getStore());
-                it = new ItemController(transaction.getItem());
+            tc = new TransactionController(transaction);
+            st = new StoreController(transaction.getStore());
+            it = new ItemController(transaction.getItem());
 
-                try {
-                    JSONObject itemJson = new JSONObject();
-                    itemJson.put("ID",it.getItemId());
-                    itemJson.put("Name",it.getItemName());
-                    itemJson.put("Price",it.getItemPrice());
-                    itemJson.put("Quantity",it.getItemQuantity());
+            try {
+                JSONObject itemJson = new JSONObject();
+                itemJson.put("ID", it.getItemId());
+                itemJson.put("Name", it.getItemName());
+                itemJson.put("Price", it.getItemPrice());
+                itemJson.put("Quantity", it.getItemQuantity());
 
-                    JSONObject storeJson = new JSONObject();
-                    storeJson.put("ID",st.getStoreId());
-                    storeJson.put("Name",st.getStoreName());
-//                    storeJson.put("Longitude",st.getLongitude());
-//                    storeJson.put("Latitude",st.getLatitude());
+                JSONObject storeJson = new JSONObject();
+                storeJson.put("ID", st.getStoreId());
+                storeJson.put("Name", st.getStoreName());
+//          storeJson.put("Longitude",st.getLongitude());
+//          storeJson.put("Latitude",st.getLatitude());
 
-                    JSONObject transactionJson = new JSONObject();
-                    transactionJson.put("ID",tc.getTransactionId());
-                    transactionJson.put("Store",storeJson);
-                    transactionJson.put("Item",itemJson);
-                    transactionJson.put("Time",tc.getTransactionTime());
-                    transactionJson.put("Date",tc.getTransactionDate());
-
-
-//                    FileWriter file = new FileWriter(ContextAsync.getFilesDir()+FILENAME);
-//                    BufferedWriter output = new BufferedWriter(file);
-//                    output.write(transactionJson.toString());
-
-                    System.out.println("\nJSON Object: " + transactionJson);
-
-//                } catch (FileNotFoundException e) {
-//                    throw new RuntimeException(e);
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                transactionJson = new JSONObject();
+                transactionJson.put("ID", tc.getTransactionId());
+                transactionJson.put("Store", storeJson);
+                transactionJson.put("Item", itemJson);
+                transactionJson.put("Date", tc.getTransactionCalendar());
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-            return null;
+
+            return transactionJson;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject json) {
+            System.out.println(json.toString());
+            try {
+                FileWriter file = new FileWriter(ContextAsync.getFilesDir()+FILENAME);
+                BufferedWriter output = new BufferedWriter(file);
+                output.write(json.toString());
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

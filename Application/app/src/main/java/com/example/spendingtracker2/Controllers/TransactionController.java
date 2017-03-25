@@ -32,9 +32,9 @@ public class TransactionController {
      * Returns a string with the transaction date
      * @return String
      */
-    public String getTransactionDate() {
+    public String getTransactionCalendar() {
         Calendar calendar = transaction.getCalendar();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
         String formattedDate = format.format(calendar.getTime());
         return formattedDate;
     }

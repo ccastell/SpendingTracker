@@ -15,27 +15,19 @@ public class TransactionList {
     private ArrayList<Transaction> transactionsList; // List of transactions
 
     /**
-     * class consytuctor that initialize an empty transactionList
-     * @param date
-     * @param title
+     * class constructor that initialize an empty transactionList
      */
-    public TransactionList(Date date, String title) {
+    public TransactionList() {
         this.transactionsList = new ArrayList<>();
-        this.date = date;
-        this.title = title;
     }
 
     /**
      * class constructor with an arrayList parameter to cast
      * arrayList of Transaction into an TransactionList
-     * @param date
-     * @param title
      * @param transactionsList
      */
-    public TransactionList(Date date, String title, ArrayList<Transaction> transactionsList) {
+    public TransactionList(ArrayList<Transaction> transactionsList) {
         this.transactionsList = transactionsList;
-        this.date = date;
-        this.title = title;
     }
 
     /**

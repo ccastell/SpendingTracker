@@ -29,6 +29,13 @@ public class Item {
         this.id = nextID.incrementAndGet();
     }
 
+    public Item(int id, String name, double price, int quantity) {
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+        this.id = id;
+    }
+
     /**
      * Get Item Function
      * returns item Name

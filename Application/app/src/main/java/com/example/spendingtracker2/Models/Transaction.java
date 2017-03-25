@@ -31,6 +31,20 @@ public class Transaction {
     }
 
     /**
+     * Transaction from json file
+     * @param id
+     * @param item
+     * @param store
+     * @param calendar
+     */
+    public Transaction(int id, Item item, Store store, Calendar calendar) {
+        this.store = store;
+        this.item = item;
+        this.calendar = calendar;
+        this.id = id;
+    }
+
+    /**
      * getDate function.
      * Returns the date when the item is purchase(recorded).
      * @return Calendar

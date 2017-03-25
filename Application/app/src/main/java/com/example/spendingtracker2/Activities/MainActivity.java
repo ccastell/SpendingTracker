@@ -9,9 +9,12 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.view.menu.MenuView;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -26,26 +29,46 @@ import android.widget.Button;
 
 import com.example.spendingtracker2.Controllers.TransactionController;
 import com.example.spendingtracker2.Fragments.TransactionDialogFragment;
+import com.example.spendingtracker2.Interfaces.JsonControllerListener;
 import com.example.spendingtracker2.Interfaces.OnCompleteListener;
 import com.example.spendingtracker2.Models.Item;
 import com.example.spendingtracker2.Models.Store;
 import com.example.spendingtracker2.Models.Transaction;
 import com.example.spendingtracker2.R;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener ,
-        OnCompleteListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        OnCompleteListener, JsonControllerListener {
 
-
+    private Location location;
     private LocationManager locationManager;
+    private GoogleApiClient mGoogleApiClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Create an instance of GoogleAPIClient.
+        if (this.mGoogleApiClient == null) {
+            this.mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+        // this.mGoogleApiClient.connect();
+
     }
+
 
     @Override
     public void onBackPressed() {
@@ -57,20 +80,20 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -84,8 +107,6 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_settings) {
 
-        } else if (id == R.id.nav_recent) {
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -97,15 +118,19 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        this.mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         final Button button = (Button) findViewById(R.id.transaction_dialog_button);
         button.setOnClickListener(new View.OnClickListener() {
@@ -125,6 +150,9 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -133,6 +161,13 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        Menu nav_Menu = navigationView.getMenu();
+        // Clear The recent when it's empty
+        nav_Menu.findItem(R.id.nav_recent_1).setVisible(false);
+        nav_Menu.findItem(R.id.nav_recent_2).setVisible(false);
+        nav_Menu.findItem(R.id.nav_recent_3).setVisible(false);
+        nav_Menu.findItem(R.id.nav_recent_4).setVisible(false);
+        nav_Menu.findItem(R.id.nav_recent_5).setVisible(false);
     }
 
     /**
@@ -145,34 +180,58 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public void onComplete(String itemName, String storeName, Double price, int quantity) {
-//        Location location;
-//
-//        Calendar calendar = Calendar.getInstance();
-//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-//
-//        // getting GPS status
-//        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-//
-//        // getting network status
-//        isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-//
+        Calendar calendar = Calendar.getInstance();
+        Item item = new Item(itemName, price, quantity);
+        Store store = new Store(storeName, this.location);
 
-//        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-//
-//        if (location != null) {
-//            location.getLongitude();
-//            System.out.println(location.getLatitude());
-//        } else {
-//            Item item = new Item(itemName, price, quantity);
-//            System.out.println("location is NULL -------");
-//            Store store = new Store(storeName, location);
-//            Transaction transaction = new Transaction(item, store, calendar);
-//            new TransactionController(this, transaction).save();
-//        }
-//    }
+        Transaction transaction = new Transaction(item,store,calendar);
+        TransactionController tController = new TransactionController(this,transaction);
+        tController.save();
+
+//        mGoogleApiClient.disconnect();
     }
 
 
+    /**
+     * Update the sidebar list with the return list of jsonController
+     * http://stackoverflow.com/questions/28729067/android-increment-button-in-loop-to-setvisibility
+     * @param transactions
+     */
+    @Override
+    public void updateNavigationItems(ArrayList<Transaction> transactions) {
+//        int size = transactions.size();
+//        for (int i = 1; i <= size; i++){
+//            int itemId = this.getResources().getIdentifier("nav_recent_"+i, "id", this.getPackageName());
+//            findViewById(itemId).setVisibility(View.VISIBLE);
+//        }
+    }
+
+
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        Location mLastLocation = null;
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+        }
+
+        if (mLastLocation != null) {
+            System.out.println(mLastLocation.getLatitude());
+            this.location = mLastLocation;
+        }
+        System.out.println("-----");
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    }
 
 }
