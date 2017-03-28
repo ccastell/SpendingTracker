@@ -39,6 +39,13 @@ public class TransactionController {
         return formattedDate;
     }
 
+    public String getTransactionDate() {
+        Calendar calendar = transaction.getCalendar();
+        SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
+        String formattedTime = format.format(calendar.getTime());
+        return formattedTime;
+    }
+
     /**
      * Get transaction Time Function
      * Returns a string with the transaction time
@@ -67,4 +74,5 @@ public class TransactionController {
     public void update() {
 
     }
+
 }

@@ -16,6 +16,8 @@ import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 
 /**
@@ -46,16 +48,20 @@ public class GetJsonController {
         @Override
         protected ArrayList<Transaction> doInBackground(Transaction... transactions) {
             ArrayList<Transaction> transactionList = new ArrayList<>();
+            String filePath = ContextAsync.getFilesDir()+FILENAME;
 
             try {
-                FileReader file = new FileReader(ContextAsync.getFilesDir()+FILENAME);
+                FileReader file = new FileReader(filePath);
                 BufferedReader input = new BufferedReader(file);
                 // do reading, usually loop until end of file reading
                 String mLine;
                 while ((mLine = input.readLine()) != null) {
+//                    System.out.println("Read" + mLine);
+
                     JSONObject transactionJson = new JSONObject(mLine);
                     String date = transactionJson.getString("Date");
                     int transactionID = transactionJson.getInt("ID");
+
 
                     JSONObject itemJson = transactionJson.getJSONObject("Item");
                     String itemName = itemJson.getString("Name");
@@ -80,27 +86,17 @@ public class GetJsonController {
                     transactionList.add(transaction);
                 }
 
+                input.close();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             return transactionList;
         }
 
         @Override
         protected void onPostExecute(ArrayList<Transaction> transactionList) {
-            ArrayList<Transaction> transactions = new ArrayList<>();
-
-            int size = transactionList.size();
-
-            while (true) {
-                size--;
-                transactions.add(transactionList.get(size));
-                if (size == 0) {
-                    break;
-                }
-            }
-            
+            Collections.reverse(transactionList);
             JsonControllerListener jsListener = (JsonControllerListener) ContextAsync;
             jsListener.updateNavigationItems(transactionList);
         }

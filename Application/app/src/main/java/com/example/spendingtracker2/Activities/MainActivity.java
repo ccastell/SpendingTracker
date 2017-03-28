@@ -26,8 +26,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.TextView;
 
+import com.example.spendingtracker2.Controllers.ItemController;
 import com.example.spendingtracker2.Controllers.TransactionController;
+import com.example.spendingtracker2.Controllers.TransactionListController;
 import com.example.spendingtracker2.Fragments.TransactionDialogFragment;
 import com.example.spendingtracker2.Interfaces.JsonControllerListener;
 import com.example.spendingtracker2.Interfaces.OnCompleteListener;
@@ -35,10 +38,12 @@ import com.example.spendingtracker2.Models.Item;
 import com.example.spendingtracker2.Models.Store;
 import com.example.spendingtracker2.Models.Transaction;
 import com.example.spendingtracker2.R;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -47,6 +52,8 @@ public class MainActivity extends AppCompatActivity
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         OnCompleteListener, JsonControllerListener {
 
+    private Menu nav_Menu;
+    private NavigationView navigationView;
     private Location location;
     private LocationManager locationManager;
     private GoogleApiClient mGoogleApiClient;
@@ -65,6 +72,29 @@ public class MainActivity extends AppCompatActivity
                     .addApi(LocationServices.API)
                     .build();
         }
+
+
+        this.navigationView = (NavigationView) findViewById(R.id.nav_view);
+        this.navigationView.setNavigationItemSelectedListener(this);
+        this.nav_Menu = this.navigationView.getMenu();
+
+        // Clear The recent when it's empty
+        this.nav_Menu.findItem(R.id.nav_recent_1).setVisible(false);
+        this.nav_Menu.findItem(R.id.nav_recent_2).setVisible(false);
+        this.nav_Menu.findItem(R.id.nav_recent_3).setVisible(false);
+        this.nav_Menu.findItem(R.id.nav_recent_4).setVisible(false);
+        this.nav_Menu.findItem(R.id.nav_recent_5).setVisible(false);
+
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
+        String formattedTime = format.format(calendar.getTime());
+        TextView subHeader = (TextView) this.navigationView.getHeaderView(0).findViewById(R.id.date_view);
+        subHeader.setText(formattedTime);
+
+        // Update Side Navigation
+        TransactionListController tlc = new TransactionListController(this);
+        tlc.updateSideNavigation();
+
         // this.mGoogleApiClient.connect();
 
     }
@@ -102,10 +132,22 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_all) {
-            // Handle the camera action
+
         } else if (id == R.id.nav_scheduled) {
 
         } else if (id == R.id.nav_settings) {
+
+        } else if (id == R.id.nav_recent_1) {
+//            setContentView(R.layout.activity_transaction);
+//            Intent intent = new Intent(this, TransactionActivity.class);
+//            startActivity(intent);
+        } else if (id == R.id.nav_recent_2) {
+
+        } else if (id == R.id.nav_recent_3) {
+
+        } else if (id == R.id.nav_recent_4) {
+
+        } else if (id == R.id.nav_recent_5) {
 
         }
 
@@ -119,6 +161,7 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         this.mGoogleApiClient.connect();
+
     }
 
     @Override
@@ -130,7 +173,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        setContentView(R.layout.activity_main);
 
         final Button button = (Button) findViewById(R.id.transaction_dialog_button);
         button.setOnClickListener(new View.OnClickListener() {
@@ -159,15 +201,6 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        Menu nav_Menu = navigationView.getMenu();
-        // Clear The recent when it's empty
-        nav_Menu.findItem(R.id.nav_recent_1).setVisible(false);
-        nav_Menu.findItem(R.id.nav_recent_2).setVisible(false);
-        nav_Menu.findItem(R.id.nav_recent_3).setVisible(false);
-        nav_Menu.findItem(R.id.nav_recent_4).setVisible(false);
-        nav_Menu.findItem(R.id.nav_recent_5).setVisible(false);
     }
 
     /**
@@ -188,8 +221,8 @@ public class MainActivity extends AppCompatActivity
         Transaction transaction = new Transaction(item,store,calendar);
         TransactionController tController = new TransactionController(this,transaction);
         tController.save();
-
 //        mGoogleApiClient.disconnect();
+//
     }
 
 
@@ -200,11 +233,28 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public void updateNavigationItems(ArrayList<Transaction> transactions) {
-//        int size = transactions.size();
-//        for (int i = 1; i <= size; i++){
-//            int itemId = this.getResources().getIdentifier("nav_recent_"+i, "id", this.getPackageName());
-//            findViewById(itemId).setVisibility(View.VISIBLE);
-//        }
+        double totalExpenditure = 0;
+        // called by anyone other than GetJsonController
+        if (transactions == null) {
+            TransactionListController tlc = new TransactionListController(this);
+            tlc.updateSideNavigation();
+        } else {
+            int size = (transactions.size() > 5) ? 5 : transactions.size();
+            for (int i = 1; i <= size; i++){
+                Transaction transaction = transactions.get(i - 1);
+                TransactionController tc = new TransactionController(transaction);
+
+                int itemId = this.getResources().getIdentifier("nav_recent_"+i, "id", this.getPackageName());
+                this.nav_Menu.findItem(itemId).setVisible(true);
+                this.nav_Menu.findItem(itemId).setTitle(tc.getTransactionDate() + " " + tc.getTransactionTime());
+
+                ItemController ic = new ItemController(transaction.getItem());
+                totalExpenditure += ic.getItemPrice();
+            }
+        }
+        TextView header = (TextView) this.navigationView.getHeaderView(0).findViewById(R.id.price_view);
+        header.setText("$ " + String.format("%.2f",totalExpenditure));
+
     }
 
 
@@ -223,7 +273,6 @@ public class MainActivity extends AppCompatActivity
             System.out.println(mLastLocation.getLatitude());
             this.location = mLastLocation;
         }
-        System.out.println("-----");
     }
 
     @Override

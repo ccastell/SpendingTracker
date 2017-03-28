@@ -12,16 +12,19 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 
 import com.example.spendingtracker2.Models.Item;
+import com.example.spendingtracker2.Interfaces.JsonControllerListener;
 import com.example.spendingtracker2.Models.Transaction;
 import com.example.spendingtracker2.Models.TransactionList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -89,16 +92,26 @@ public class AddJsonController {
 
         @Override
         protected void onPostExecute(JSONObject json) {
-            System.out.println(json.toString());
+            String filePath = ContextAsync.getFilesDir()+FILENAME;
+
             try {
-                FileWriter file = new FileWriter(ContextAsync.getFilesDir()+FILENAME);
+                FileWriter file = new FileWriter(filePath,true);
                 BufferedWriter output = new BufferedWriter(file);
-                output.write(json.toString());
+                output.write(json.toString()+'\n');
+                output.close();
+
+//                System.out.println("Write" + json.toString());
+
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
+            // Update the side navigation when done adding
+            JsonControllerListener jsListener = (JsonControllerListener) ContextAsync;
+            jsListener.updateNavigationItems(null);
+
         }
     }
 }
