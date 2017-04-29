@@ -2,6 +2,10 @@ package com.example.spendingtracker2.Activities;
 
 import android.Manifest;
 import android.app.DialogFragment;
+
+import android.app.FragmentManager;
+
+import android.app.FragmentTransaction;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -31,12 +35,15 @@ import android.widget.TextView;
 import com.example.spendingtracker2.Controllers.ItemController;
 import com.example.spendingtracker2.Controllers.TransactionController;
 import com.example.spendingtracker2.Controllers.TransactionListController;
+import com.example.spendingtracker2.Fragments.CameraFragment;
 import com.example.spendingtracker2.Fragments.TransactionDialogFragment;
+import com.example.spendingtracker2.Fragments.TransactionInformationFragment;
 import com.example.spendingtracker2.Interfaces.JsonControllerListener;
 import com.example.spendingtracker2.Interfaces.OnCompleteListener;
 import com.example.spendingtracker2.Models.Item;
 import com.example.spendingtracker2.Models.Store;
 import com.example.spendingtracker2.Models.Transaction;
+import com.example.spendingtracker2.Models.TransactionList;
 import com.example.spendingtracker2.R;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -58,6 +65,7 @@ public class MainActivity extends AppCompatActivity
     private LocationManager locationManager;
     private GoogleApiClient mGoogleApiClient;
 
+    private TransactionList transactionList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +103,13 @@ public class MainActivity extends AppCompatActivity
         TransactionListController tlc = new TransactionListController(this);
         tlc.updateSideNavigation();
 
+
+        // http://stackoverflow.com/questions/36583205/open-fragment-from-activity
+        FragmentManager fragmentManager = MainActivity.this.getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        CameraFragment fragment = new CameraFragment();
+        fragmentTransaction.replace(R.id.main_fragment_container,fragment); //ERROR ON THIS LINE
+        fragmentTransaction.commit();
         // this.mGoogleApiClient.connect();
 
     }
@@ -174,23 +189,23 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        final Button button = (Button) findViewById(R.id.transaction_dialog_button);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                DialogFragment newFragment = new TransactionDialogFragment();
-                newFragment.show(getFragmentManager(), "dialog");
-            }
-        });
+//        final Button button = (Button) findViewById(R.id.transaction_dialog_button);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                // Perform action on click
+//                DialogFragment newFragment = new TransactionDialogFragment();
+//                newFragment.show(getFragmentManager(), "dialog");
+//            }
+//        });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -239,6 +254,7 @@ public class MainActivity extends AppCompatActivity
             TransactionListController tlc = new TransactionListController(this);
             tlc.updateSideNavigation();
         } else {
+            transactionList = new TransactionList(transactions);
             int size = (transactions.size() > 5) ? 5 : transactions.size();
             for (int i = 1; i <= size; i++){
                 Transaction transaction = transactions.get(i - 1);
